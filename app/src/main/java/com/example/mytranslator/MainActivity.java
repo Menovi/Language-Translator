@@ -1,12 +1,14 @@
 package com.example.mytranslator;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,6 +17,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,8 +39,9 @@ public class MainActivity extends AppCompatActivity {
 
     private Spinner to_spinner;
     private Spinner from_spinner;
-    String[] fromLanguages = {"Select from Language","Afrikaans", "Arabic", "Belarusian","Bulgarian",
-            "Bengali", "Czech","English", "French","German","Gujarati","Hindi",
+    private ImageView speak_btn;
+    String[] fromLanguages = {"English","Afrikaans", "Arabic", "Belarusian","Bulgarian",
+            "Bengali", "Czech", "French","German","Gujarati","Hindi",
             "Japanese","Kannada","Russian","Tamil"};
     String[] toLanguages = {"Select to Language","Afrikaans", "Arabic", "Belarusian","Bulgarian",
             "Bengali", "Czech", "English","French","German","Gujarati","Hindi",
@@ -59,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
         input = findViewById(R.id.input);
         button = findViewById(R.id.button);
         output = findViewById(R.id.output);
+        speak_btn =findViewById(R.id.speak_btn);
 
         //from spinner
         from_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -144,6 +149,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
+        speak_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Speak(view);
+            }
+        });
+
     }
     public String getLanguageCode(String language) {
         switch(language){
@@ -220,6 +234,24 @@ public class MainActivity extends AppCompatActivity {
 
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+
+    //Speech to text
+    private void Speak(View view){
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, fromLanguageCode);
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Listening...");
+        startActivityForResult(intent, 111);
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==111 && resultCode==RESULT_OK){
+            input.setText(data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS).get(0));
         }
     }
 }

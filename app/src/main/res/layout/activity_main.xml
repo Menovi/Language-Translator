@@ -76,17 +76,39 @@
             android:layout_marginLeft="40dp"
             android:layout_marginRight="40dp"
             android:inputType="textImeMultiLine|textMultiLine"
-            android:outlineProvider="none" />
-
-        <Button
-            android:id="@+id/button"
-            android:layout_width="wrap_content"
+            android:outlineProvider="none"
+            android:background="@drawable/border"/>
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Translate"
-            android:backgroundTint="@color/purple_700"
-            android:textColor="@color/white"/>
-
+            android:weightSum="10">
+            <Space
+                android:layout_width="10dp"
+                android:layout_height="match_parent"
+                android:layout_weight="5"/>
+            <Button
+                android:id="@+id/button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Translate"
+                android:backgroundTint="@color/purple_700"
+                android:textColor="@color/white"
+                android:layout_weight="1"/>
+            <Space
+                android:layout_width="10dp"
+                android:layout_height="match_parent"
+                android:layout_weight=".5"/>
+            <ImageView
+                android:id="@+id/speak_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_mic"
+                android:layout_weight="2"/>
+        </LinearLayout>
         <Space
             android:layout_width="match_parent"
             android:layout_height="20dp" />
