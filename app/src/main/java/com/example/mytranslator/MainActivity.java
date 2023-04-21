@@ -47,11 +47,11 @@ public class MainActivity extends AppCompatActivity {
     private ImageView speak_btn, sound_btn;
     private TextToSpeech textToSpeech;
     String[] fromLanguages = {"English","Afrikaans", "Arabic", "Belarusian","Bulgarian",
-            "Bengali", "Czech", "French","German","Gujarati","Hindi",
-            "Japanese","Kannada","Russian","Tamil"};
+            "Bengali", "Chinese", "Czech", "French","German","Gujarati","Hindi",
+            "Japanese","Kannada", "Marathi","Russian","Tamil", "Telugu", "Urdu"};
     String[] toLanguages = {"Select Language","Afrikaans", "Arabic", "Belarusian","Bulgarian",
-            "Bengali", "Czech", "English","French","German","Gujarati","Hindi",
-            "Japanese","Kannada","Russian","Tamil"};
+            "Bengali", "Chinese", "Czech", "English","French","German","Gujarati","Hindi",
+            "Japanese","Kannada", "Marathi", "Russian","Tamil", "Telugu", "Urdu"};
     String languageCode, toLanguageCode, fromLanguageCode;
 
     @Override
@@ -177,11 +177,13 @@ public class MainActivity extends AppCompatActivity {
                 if (status == TextToSpeech.SUCCESS) {
                     // TextToSpeech engine initialization successful
                     //textToSpeech.setLanguage(new Locale(""));
-                    textToSpeech.setLanguage(Locale.getDefault());
-
-
+                    int result = textToSpeech.setLanguage(Locale.getDefault());
+                    if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                        Toast.makeText(MainActivity.this, "Language not supported", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     // TextToSpeech engine initialization failed
+                    Toast.makeText(MainActivity.this, "TextToSpeech engine initialization failed", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -209,6 +211,9 @@ public class MainActivity extends AppCompatActivity {
             case"Bengali":
                 languageCode = TranslateLanguage.BENGALI;
                 break;
+            case"Chinese":
+                languageCode = TranslateLanguage.CHINESE;
+                break;
             case"Czech":
                 languageCode = TranslateLanguage.CZECH;
                 break;
@@ -233,13 +238,21 @@ public class MainActivity extends AppCompatActivity {
             case"Kannada":
                 languageCode = TranslateLanguage.KANNADA;
                 break;
+            case"Marathi":
+                languageCode = TranslateLanguage.MARATHI;
+                break;
             case"Russian":
                 languageCode = TranslateLanguage.RUSSIAN;
                 break;
             case"Tamil":
                 languageCode = TranslateLanguage.TAMIL;
                 break;
-
+            case"Telugu":
+                languageCode = TranslateLanguage.TELUGU;
+                break;
+            case"Urdu":
+                languageCode = TranslateLanguage.URDU;
+                break;
 
             default:
                 languageCode="";
