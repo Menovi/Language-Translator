@@ -6,14 +6,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.speech.tts.TextToSpeech;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -31,6 +34,8 @@ import com.google.mlkit.nl.translate.Translator;
 import com.google.mlkit.nl.translate.TranslatorOptions;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity {
 
     private TextInputEditText input;
@@ -39,11 +44,12 @@ public class MainActivity extends AppCompatActivity {
 
     private Spinner to_spinner;
     private Spinner from_spinner;
-    private ImageView speak_btn;
+    private ImageView speak_btn, sound_btn;
+    private TextToSpeech textToSpeech;
     String[] fromLanguages = {"English","Afrikaans", "Arabic", "Belarusian","Bulgarian",
             "Bengali", "Czech", "French","German","Gujarati","Hindi",
             "Japanese","Kannada","Russian","Tamil"};
-    String[] toLanguages = {"Select to Language","Afrikaans", "Arabic", "Belarusian","Bulgarian",
+    String[] toLanguages = {"Select Language","Afrikaans", "Arabic", "Belarusian","Bulgarian",
             "Bengali", "Czech", "English","French","German","Gujarati","Hindi",
             "Japanese","Kannada","Russian","Tamil"};
     String languageCode, toLanguageCode, fromLanguageCode;
@@ -64,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         button = findViewById(R.id.button);
         output = findViewById(R.id.output);
         speak_btn =findViewById(R.id.speak_btn);
+        sound_btn = findViewById(R.id.sound_btn);
 
         //from spinner
         from_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -115,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
 
                     String sourceText = input.getText().toString();
 
-
+                    //Download progress dialog
                     ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
                     progressDialog.setMessage("Downloading the Translation Model...");
                     progressDialog.setCancelable(false);
@@ -146,16 +153,41 @@ public class MainActivity extends AppCompatActivity {
                         }
                     });
                 }
+
+                // Hide the keyboard when translate button is clicked
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
             }
         });
 
 
-
+        //Speech to text
         speak_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Speak(view);
             }
+        });
+
+        //Text to Speech
+        textToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status == TextToSpeech.SUCCESS) {
+                    // TextToSpeech engine initialization successful
+                    //textToSpeech.setLanguage(new Locale(""));
+                    textToSpeech.setLanguage(Locale.getDefault());
+
+
+                } else {
+                    // TextToSpeech engine initialization failed
+                }
+            }
+        });
+        sound_btn.setOnClickListener(v -> {
+            String text = output.getText().toString();
+            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
         });
 
     }
@@ -254,4 +286,16 @@ public class MainActivity extends AppCompatActivity {
             input.setText(data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS).get(0));
         }
     }
+
+
+    //Text to Speech
+    @Override
+    protected void onDestroy() {
+        if (textToSpeech != null) {
+            textToSpeech.stop();
+            textToSpeech.shutdown();
+        }
+        super.onDestroy();
+    }
+
 }
