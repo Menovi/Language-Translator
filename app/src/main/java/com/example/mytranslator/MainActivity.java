@@ -34,6 +34,7 @@ import com.google.mlkit.nl.translate.Translator;
 import com.google.mlkit.nl.translate.TranslatorOptions;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.ArrayList;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
@@ -166,18 +167,19 @@ public class MainActivity extends AppCompatActivity {
         speak_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 Speak(view);
             }
         });
 
         //Text to Speech
-        textToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+        textToSpeech = new TextToSpeech(MainActivity.this, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
                 if (status == TextToSpeech.SUCCESS) {
                     // TextToSpeech engine initialization successful
-                    //textToSpeech.setLanguage(new Locale(""));
                     int result = textToSpeech.setLanguage(Locale.getDefault());
+                    //int result = textToSpeech.setLanguage(new Locale(" "));
                     if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                         Toast.makeText(MainActivity.this, "Language not supported", Toast.LENGTH_SHORT).show();
                     }
@@ -189,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
         });
         sound_btn.setOnClickListener(v -> {
             String text = output.getText().toString();
-            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
         });
 
     }
@@ -285,20 +287,30 @@ public class MainActivity extends AppCompatActivity {
 
 
     //Speech to text
-    private void Speak(View view){
+    private void Speak(View view) {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, fromLanguageCode);
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Listening...");
-        startActivityForResult(intent, 111);
+
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(intent, 111);
+        } else {
+            Toast.makeText(this, "Your device does not support speech recognition.", Toast.LENGTH_LONG).show();
+        }
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode==111 && resultCode==RESULT_OK){
-            input.setText(data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS).get(0));
+        if (requestCode == 111 && resultCode == RESULT_OK && data != null) {
+            ArrayList<String> results = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+            if (!results.isEmpty()) {
+                input.setText(results.get(0));
+            }
         }
     }
+
 
 
     //Text to Speech
